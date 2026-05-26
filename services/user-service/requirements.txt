@@ -3,9 +3,6 @@ uvicorn[standard]
 sqlalchemy
 alembic
 pydantic
-pydantic-settings
 python-dotenv
 aiosqlite
 asyncpg
-redis
-python-jose[cryptography]
