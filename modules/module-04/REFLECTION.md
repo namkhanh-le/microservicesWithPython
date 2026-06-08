@@ -18,7 +18,7 @@ In Module 3, services called each other directly over HTTP. Now activity-service
 
 Think about what happens under load, or when notification-service is temporarily down.
 
-> *Your answer:*
+By not waiting for a reply, activity-service can respond to the user immediately after saving the activity. Notifs service process messages at its own pace. and if it goes down temporarily, the messages just wait in the queue and get processed when it comes back up.
 
 ---
 
@@ -30,7 +30,7 @@ In Module 3 you already knew how to call another service directly over HTTP — 
 
 Think about what happens if notification-service is slow, or crashes mid-message.
 
-> *Your answer:*
+A direct HTTP call means activity service has to wait for notification-service to respond, and if notifs service is slow or crashes, the whole activity creation could fail. A broker decouples them completely sso tivity service just drops the message and moves on. If notification-service crashes, the message stays in the queue safely. 
 
 ---
 
@@ -42,7 +42,7 @@ With synchronous REST, you get an immediate answer: success or failure. With asy
 
 What visibility do you lose when you go async?
 
-> *Your answer:*
+A user doesn't know. the activity creation returns success regardless of whether the notification was ever delivered. 
 
 ---
 
