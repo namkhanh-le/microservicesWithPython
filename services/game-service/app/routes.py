@@ -12,7 +12,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app import service, schemas
+from app import service, schemas, models
+from app.security import require_admin
 from app.infrastructure.cache import get_game_summary
 
 router = APIRouter(prefix="/v1/games", tags=["games"])
@@ -42,3 +43,13 @@ def get_game(game_id: str, db: Session = Depends(get_db)):
         return service.fetch_game(db, game_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+@router.delete("/{game_id}", dependencies=[Depends(require_admin)])
+def delete_game(game_id: str, db: Session = Depends(get_db)):
+    try:
+        service.fetch_game(db, game_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    db.query(models.Game).filter(models.Game.id == game_id).delete()
+    db.commit()
+    return {"message": "Game deleted"}

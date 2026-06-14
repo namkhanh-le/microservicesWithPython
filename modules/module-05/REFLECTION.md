@@ -18,7 +18,7 @@ The game-service now has two models for the same data: SQLite for writes, Redis 
 
 Think about what kind of queries each model is optimised for, and what would happen if you tried to use the write model for high-traffic read operations.
 
-> *Your answer:*
+SQLite is optimised for accurate writes for storing the authoritative version of a game.Maintaining two representations lets me serve reads at scale without putting pressure on the write model.
 
 ---
 
@@ -30,7 +30,7 @@ The logging-service checks GDPR consent before recording any activity. If a user
 
 From a system design perspective: where is the right place to enforce this rule — in the logging-service, in the activity-service, or at the gateway? Why?
 
-> *Your answer:*
+It forces you to accept that your data will always be incomplete. The right place to enforce this rule is in the logging-service, not at the gateway or activity service. =
 
 ---
 
@@ -42,7 +42,7 @@ With CQRS, your write model and read model can drift out of sync — a game is u
 
 Is there a class of applications where eventual consistency is never acceptable? What are they?
 
-> *Your answer:*
+It matters when a user updates something and expects to see the change immediately. Applications where eventual consistency is never acceptable include anything involving money inventory medical records or legal data 
 
 ---
 

@@ -18,8 +18,7 @@ The gateway now validates every JWT before forwarding a request. Individual serv
 
 Think about what happens when you need to rotate the secret key, or add a new service to the system.
 
-> *Your answer:*
-
+Centralising means I only have one place to update when rotating the secret key or change how tokens are validated so services behind it benefits automatically. alternative would be services importing the same JWT logic, maintaining the same secret and updating independently. Adding a new service would mean remembering to add auth logic to it too. 
 ---
 
 ## 2. Your choice
@@ -30,7 +29,7 @@ When activity-service calls user-service internally, it uses a Machine-to-Machin
 
 What would break, or what door would you accidentally leave open, if services passed user tokens between themselves?
 
-> *Your answer:*
+Reusing user's token mean activity-service is impersonating the user when calling user-service so gives it whatever permissions that user has. 
 
 ---
 
@@ -42,7 +41,7 @@ The gateway and the auth-service share the same `SECRET_KEY` to verify tokens wi
 
 And what would the alternative look like — verifying tokens by calling auth-service on every request instead? What does that cost you?
 
-> *Your answer:*
+If the shared secret key leaks, anyone who has it can forge valid tokens for any user or role. The alternative is verifying tokens by calling auth-service on every request so it eliminates that risk since the secret never leaves auth service, but it adds a network call to every single request in the system. 
 
 ---
 

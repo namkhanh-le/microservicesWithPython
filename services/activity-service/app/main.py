@@ -5,6 +5,7 @@
 #
 # To run:
 #   uvicorn app.main:app --reload --port 8003
+from app.infrastructure.auth_client import get_auth_headers
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException
@@ -41,19 +42,21 @@ async def validate_user(user_id: str) -> None:
     Use `async with httpx.AsyncClient(timeout=5.0) as client:` for HTTP calls.
     This call is CRITICAL — the request must not proceed if validation fails.
     """
-    url = f"{settings.user_service_url}/v1/users/{user_id}"
-    for attempt in range(2):
-        try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                response = await client.get(url)
-            if response.status_code == 200:
-                return
-            if response.status_code == 404:
-                raise HTTPException(status_code=404, detail="User not found")
-            raise HTTPException(status_code=503, detail="user-service unavailable")
-        except httpx.RequestError:
-            if attempt == 1:
+    async def validate_user(user_id: str) -> None:
+        url = f"{settings.user_service_url}/v1/users/{user_id}"
+        for attempt in range(2):
+            try:
+                headers = await get_auth_headers()
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    response = await client.get(url, headers=headers)
+                if response.status_code == 200:
+                    return
+                if response.status_code == 404:
+                    raise HTTPException(status_code=404, detail="User not found")
                 raise HTTPException(status_code=503, detail="user-service unavailable")
+            except httpx.RequestError:
+                if attempt == 1:
+                    raise HTTPException(status_code=503, detail="user-service unavailable")
 
 
 async def fetch_game(game_id: str) -> dict | None:
